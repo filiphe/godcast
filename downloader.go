@@ -1,11 +1,14 @@
 package main
 
 import (
+	"fmt"
 	"github.com/brianallred/goydl"
+	"log"
 )
 
 var ydl = goydl.NewYoutubeDl()
 
+// SetDownloader sets goydl options
 func SetDownloader() {
 	ydl.Options.AddMetadata.Value = true
 	ydl.Options.AudioFormat.Value = "mp3"
@@ -18,4 +21,42 @@ func SetDownloader() {
 	ydl.Options.IgnoreErrors.Value = true
 	ydl.Options.NoMtime.Value = false
 	ydl.Options.WriteThumbnail.Value = false
+}
+
+// Download downloads all Podcasts into their respective directories
+func Download() {
+	for key, value := range C.Podcasts {
+		ydl.Options.Output.Value = fmt.Sprintf("%s/%s/%%(upload_date)s-%%(title)s.%%(ext)s", outputDir, key)
+		downloadLink := fmt.Sprintf("%s%s", C.General["playlist_base"], value.PlaylistID)
+		cmd, err := ydl.Download(downloadLink)
+		if err != nil {
+			log.Fatalf("%+v\n", err)
+		}
+		cmd.Wait()
+		for _, ID := range value.AdditionalEpisodes {
+			downloadLink = fmt.Sprintf("%s%s", C.General["video_base"], ID)
+			cmd, err = ydl.Download(downloadLink)
+			if err != nil {
+				log.Fatalf("%+v\n", err)
+			}
+			cmd.Wait()
+		}
+	}
+}
+
+func DownloadThumbnail(podcast string) {
+	youtubeDL := goydl.NewYoutubeDl()
+	ydltubeDL.Options.WriteThumbnail.Value = true
+	ydltubeDL.Options.NoOverwrites.Value = true
+	ydltubeDL.Options.IgnoreErrors.Value = true
+	ydltubeDL.Options.SkipDownload.Value = true
+	ydltubeDL.Options.Output.Value = fmt.Sprintf("%s/%s/logo.%%(ext)", outputDir, podcast)
+	ydltubeDL.Options.PlaylistItems.Value = "1"
+
+	downloadLink := fmt.Sprintf("%s%s", C.General["playlist_base"], C.Podcasts[podcast].PlaylistID)
+	cmd, err := youtubeDL.Download(downloadLink)
+	if err != nil {
+		log.Fatal(err)
+	}
+	cmd.Wait()
 }

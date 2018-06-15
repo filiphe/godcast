@@ -14,13 +14,15 @@ type Config struct {
 	General  map[string]string  `yaml:"general"`
 }
 
-func ReadConfig(fp string) (*Config, error) {
+// C holds a read config
+var C *Config
+
+func ReadConfig(fp string) error {
 	data, err := ioutil.ReadFile(configFile)
 	if err != nil {
 		fmt.Println(err)
-		return nil, err
+		return err
 	}
-	c := Config{}
-	err = yaml.Unmarshal(data, &c)
-	return &c, nil
+	err = yaml.Unmarshal(data, &C)
+	return nil
 }
