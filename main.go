@@ -6,6 +6,9 @@ import (
 	"path/filepath"
 )
 
+var archiveFile string
+var outputDir string
+
 func main() {
 	flag.Parse()
 
@@ -13,6 +16,9 @@ func main() {
 	if err != nil {
 		log.Fatalf("%+v\n", err)
 	}
+
+	archiveFile = C.General["archive_file"]
+	outputDir = C.General["output_dir"]
 
 	SetDownloader()
 	Download()

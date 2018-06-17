@@ -2,32 +2,24 @@ package main
 
 import (
 	"flag"
-	"fmt"
-	"os"
+	"log"
+	"os/user"
 	"path/filepath"
 )
 
-var archiveFile string
+var configDefault string
 var configFile string
-var outputDir string
 
 func init() {
-	configDefault, err := filepath.Abs(filepath.Join(filepath.Dir(os.Args[0]), "config.yml"))
+	currentUser, err := user.Current()
 	if err != nil {
-		fmt.Println(err)
+		log.Fatal(err)
 		return
 	}
-	archiveDefault, err := filepath.Abs(filepath.Join(filepath.Dir(os.Args[0]), "archive"))
+	configDefault, err := filepath.Abs(filepath.Join(currentUser.HomeDir, ".config", "godcast", "config.yml"))
 	if err != nil {
-		fmt.Println(err)
+		log.Fatal(err)
 		return
 	}
-	outputDirDefault, err := filepath.Abs(filepath.Join(filepath.Dir(os.Args[0]), "output_dir"))
-	if err != nil {
-		fmt.Println(err)
-		return
-	}
-	flag.StringVar(&archiveFile, "archive", archiveDefault, "archive file")
 	flag.StringVar(&configFile, "config", configDefault, "configuration file")
-	flag.StringVar(&outputDir, "output", outputDirDefault, "output directory")
 }
