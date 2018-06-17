@@ -2,8 +2,9 @@ package main
 
 import (
 	"fmt"
-	"github.com/brianallred/goydl"
 	"log"
+
+	"github.com/brianallred/goydl"
 )
 
 var ydl = goydl.NewYoutubeDl()
@@ -46,12 +47,12 @@ func Download() {
 
 func DownloadThumbnail(podcast string) {
 	youtubeDL := goydl.NewYoutubeDl()
-	ydltubeDL.Options.WriteThumbnail.Value = true
-	ydltubeDL.Options.NoOverwrites.Value = true
-	ydltubeDL.Options.IgnoreErrors.Value = true
-	ydltubeDL.Options.SkipDownload.Value = true
-	ydltubeDL.Options.Output.Value = fmt.Sprintf("%s/%s/logo.%%(ext)", outputDir, podcast)
-	ydltubeDL.Options.PlaylistItems.Value = "1"
+	youtubeDL.Options.IgnoreErrors.Value = true
+	youtubeDL.Options.NoOverwrites.Value = false
+	youtubeDL.Options.Output.Value = fmt.Sprintf("%s/%s/logo.%%(ext)s", outputDir, podcast)
+	youtubeDL.Options.PlaylistItems.Value = "1"
+	youtubeDL.Options.SkipDownload.Value = true
+	youtubeDL.Options.WriteThumbnail.Value = true
 
 	downloadLink := fmt.Sprintf("%s%s", C.General["playlist_base"], C.Podcasts[podcast].PlaylistID)
 	cmd, err := youtubeDL.Download(downloadLink)
