@@ -51,19 +51,19 @@ func GenerateFeed(podcastDir string) {
 		}
 		return nil
 	})
-	feed.Created = feed.Items[0].Created
-	feed.Updated = feed.Items[len(feed.Items)-1].Updated
 
 	if err != nil {
 		fmt.Printf("GenerateFeeds: error walking the path %q: %v\n", podcastDir, err)
 	}
+	feed.Created = feed.Items[0].Created
+	feed.Updated = feed.Items[len(feed.Items)-1].Created
 	rss, err := feed.ToRss()
 	if err != nil {
-		log.Fatal(err)
+		log.Fatalf("%+v\n", err)
 	}
 	fp, err := os.Create(filepath.Join(outputDir, podcastKey, "feed.rss"))
 	if err != nil {
-		log.Fatal(err)
+		log.Fatalf("%+v\n", err)
 	}
 	fp.WriteString(rss)
 }

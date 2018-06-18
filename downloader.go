@@ -57,7 +57,7 @@ func DownloadThumbnail(podcast string) {
 	downloadLink := fmt.Sprintf("%s%s", C.General["playlist_base"], C.Podcasts[podcast].PlaylistID)
 	cmd, err := youtubeDL.Download(downloadLink)
 	if err != nil {
-		log.Fatal(err)
+		log.Fatalf("%+v\n", err)
 	}
 	cmd.Wait()
 }

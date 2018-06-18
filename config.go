@@ -1,8 +1,8 @@
 package main
 
 import (
-	"fmt"
 	"io/ioutil"
+	"log"
 
 	"gopkg.in/yaml.v2"
 )
@@ -20,7 +20,7 @@ var C *Config
 func ReadConfig(fp string) error {
 	data, err := ioutil.ReadFile(configFile)
 	if err != nil {
-		fmt.Println(err)
+		log.Fatalf("%+v\n", err)
 		return err
 	}
 	err = yaml.Unmarshal(data, &C)
