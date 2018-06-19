@@ -20,8 +20,9 @@ type Podcast struct {
 // TODO: Compare podcast "updated time" to latest podcast episode "created time"
 // and update podcast when applicable
 
-// GenerateFeed generates all podcasts
+// GenerateFeed generates a feed for a podcast
 func GenerateFeed(podcastDir string) {
+	log.Printf("Generating feed for %s\n", podcastDir)
 	podcastKey := filepath.Base(podcastDir)
 	feed := &feeds.Feed{
 		Title: C.Podcasts[podcastKey].Name,
@@ -48,6 +49,7 @@ func GenerateFeed(podcastDir string) {
 				},
 			}
 			feed.Add(item)
+			log.Printf("Adding %s to %s feed\n", info.Name(), podcastDir)
 		}
 		return nil
 	})
@@ -55,8 +57,8 @@ func GenerateFeed(podcastDir string) {
 	if err != nil {
 		fmt.Printf("GenerateFeeds: error walking the path %q: %v\n", podcastDir, err)
 	}
-	feed.Created = feed.Items[0].Created
-	feed.Updated = feed.Items[len(feed.Items)-1].Created
+	//feed.Created = feed.Items[0].Created
+	//feed.Updated = feed.Items[len(feed.Items)-1].Created
 	rss, err := feed.ToRss()
 	if err != nil {
 		log.Fatalf("%+v\n", err)
@@ -65,5 +67,6 @@ func GenerateFeed(podcastDir string) {
 	if err != nil {
 		log.Fatalf("%+v\n", err)
 	}
+	log.Println("Writing feed to file")
 	fp.WriteString(rss)
 }

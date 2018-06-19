@@ -2,7 +2,9 @@ package main
 
 import (
 	"fmt"
+	"io"
 	"log"
+	"os"
 
 	"github.com/brianallred/goydl"
 )
@@ -27,20 +29,26 @@ func SetDownloader() {
 // Download downloads all Podcasts into their respective directories
 func Download() {
 	for key, value := range C.Podcasts {
+		log.Printf("Downloading %s\n", value.Name)
 		ydl.Options.Output.Value = fmt.Sprintf("%s/%s/%%(upload_date)s-%%(title)s.%%(ext)s", outputDir, key)
 		downloadLink := fmt.Sprintf("%s%s", C.General["playlist_base"], value.PlaylistID)
+		log.Println("Executing download command")
 		cmd, err := ydl.Download(downloadLink)
+		defer cmd.Wait()
+		go io.Copy(os.Stdout, ydl.Stdout)
 		if err != nil {
 			log.Fatalf("%+v\n", err)
 		}
-		cmd.Wait()
+		//cmd.Wait()
+		log.Println("Download command completed")
 		for _, ID := range value.AdditionalEpisodes {
 			downloadLink = fmt.Sprintf("%s%s", C.General["video_base"], ID)
 			cmd, err = ydl.Download(downloadLink)
+			defer cmd.Wait()
 			if err != nil {
 				log.Fatalf("%+v\n", err)
 			}
-			cmd.Wait()
+			//cmd.Wait()
 		}
 	}
 }
@@ -54,10 +62,12 @@ func DownloadThumbnail(podcast string) {
 	youtubeDL.Options.SkipDownload.Value = true
 	youtubeDL.Options.WriteThumbnail.Value = true
 
+	log.Println("Downloading thumbnail")
 	downloadLink := fmt.Sprintf("%s%s", C.General["playlist_base"], C.Podcasts[podcast].PlaylistID)
 	cmd, err := youtubeDL.Download(downloadLink)
 	if err != nil {
 		log.Fatalf("%+v\n", err)
 	}
 	cmd.Wait()
+	log.Println("Downloaded thumbnail")
 }
