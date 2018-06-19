@@ -32,10 +32,10 @@ func Download() {
 		log.Printf("Downloading %s\n", value.Name)
 		ydl.Options.Output.Value = fmt.Sprintf("%s/%s/%%(upload_date)s-%%(title)s.%%(ext)s", outputDir, key)
 		downloadLink := fmt.Sprintf("%s%s", C.General["playlist_base"], value.PlaylistID)
-		go io.Copy(os.Stdout, ydl.Stdout)
-		go io.Copy(os.Stderr, ydl.Stderr)
 		log.Println("Executing download command")
 		cmd, err := ydl.Download(downloadLink)
+		go io.Copy(os.Stdout, ydl.Stdout)
+		go io.Copy(os.Stderr, ydl.Stderr)
 		defer cmd.Wait()
 		if err != nil {
 			log.Fatalf("%+v\n", err)
