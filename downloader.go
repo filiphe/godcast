@@ -3,8 +3,11 @@ package main
 import (
 	"fmt"
 	"io"
+	"io/ioutil"
 	"log"
+	"net/http"
 	"os"
+	"path/filepath"
 
 	"github.com/brianallred/goydl"
 )
@@ -55,20 +58,40 @@ func Download() {
 }
 
 func DownloadThumbnail(podcast string) {
-	youtubeDL := goydl.NewYoutubeDl()
-	youtubeDL.Options.IgnoreErrors.Value = true
-	youtubeDL.Options.NoOverwrites.Value = false
-	youtubeDL.Options.Output.Value = fmt.Sprintf("%s/%s/logo.%%(ext)s", outputDir, podcast)
-	youtubeDL.Options.PlaylistItems.Value = "1"
-	youtubeDL.Options.SkipDownload.Value = true
-	youtubeDL.Options.WriteThumbnail.Value = true
-
 	log.Println("Downloading thumbnail")
-	downloadLink := fmt.Sprintf("%s%s", C.General["playlist_base"], C.Podcasts[podcast].PlaylistID)
-	cmd, err := youtubeDL.Download(downloadLink)
-	if err != nil {
-		log.Fatalf("%+v\n", err)
+	logoUrl := C.Podcasts[filepath.Base(podcast)].Logo
+	if logoUrl != "" {
+		fp, err := os.Create(fmt.Sprintf("%s/%s/logo.jpg", outputDir, podcast))
+		if err != nil {
+			log.Printf("Logo file create error: %+v\n", err)
+		}
+		resp, err := http.Get(logoUrl)
+		if err != nil {
+			log.Printf("Logo file GET error: %+v\n", err)
+		}
+		defer resp.Body.Close()
+		data, err := ioutil.ReadAll(resp.Body)
+		if err != nil {
+			log.Printf("Read logo GET body error: %+v\n", err)
+		}
+		fp.Write(data)
+		fp.Close()
+
+	} else {
+		youtubeDL := goydl.NewYoutubeDl()
+		youtubeDL.Options.IgnoreErrors.Value = true
+		youtubeDL.Options.NoOverwrites.Value = false
+		youtubeDL.Options.Output.Value = fmt.Sprintf("%s/%s/logo.%%(ext)s", outputDir, podcast)
+		youtubeDL.Options.PlaylistItems.Value = "1"
+		youtubeDL.Options.SkipDownload.Value = true
+		youtubeDL.Options.WriteThumbnail.Value = true
+
+		downloadLink := fmt.Sprintf("%s%s", C.General["playlist_base"], C.Podcasts[podcast].PlaylistID)
+		cmd, err := youtubeDL.Download(downloadLink)
+		if err != nil {
+			log.Fatalf("%+v\n", err)
+		}
+		cmd.Wait()
 	}
-	cmd.Wait()
 	log.Println("Downloaded thumbnail")
 }

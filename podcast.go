@@ -15,6 +15,7 @@ type Podcast struct {
 	PlaylistID         string   `yaml:"playlist_id"`
 	Name               string   `yaml:"name"`
 	AdditionalEpisodes []string `yaml:"additional_episodes"`
+	Logo               string   `yaml:"logo"`
 }
 
 // TODO: Compare podcast "updated time" to latest podcast episode "created time"
@@ -57,8 +58,6 @@ func GenerateFeed(podcastDir string) {
 	if err != nil {
 		fmt.Printf("GenerateFeeds: error walking the path %q: %v\n", podcastDir, err)
 	}
-	//feed.Created = feed.Items[0].Created
-	//feed.Updated = feed.Items[len(feed.Items)-1].Created
 	rss, err := feed.ToRss()
 	if err != nil {
 		log.Fatalf("%+v\n", err)
@@ -69,4 +68,5 @@ func GenerateFeed(podcastDir string) {
 	}
 	log.Println("Writing feed to file")
 	fp.WriteString(rss)
+	fp.Close()
 }
